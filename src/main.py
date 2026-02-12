@@ -12,6 +12,9 @@ hdrs = (
     HighlightJS(langs=["python", "javascript", "html", "css"]),
 )
 
+db = database("routers.db")
+routers = db.create(Router, pk="index")
+
 app = FastHTML(pico=True, hdrs=hdrs)
 
 count = 0
@@ -84,31 +87,44 @@ router_form = (
                     ),
                     Div(
                         Label("Password", cls="col-xs-4"),
-                        Input(name="password", type="password", cls="col-xs-8"),
+                        Input(name="password", type="text", cls="col-xs-8"),
                         cls="row",
                     ),
                     Div(
                         Label("Secret", cls="col-xs-4"),
-                        Input(name="secret", type="password", cls="col-xs-8"),
+                        Input(name="secret", type="text", cls="col-xs-8"),
                         cls="row",
                     ),
                 ),
                 Br(),
-                Button("Configure", type="submit"),
-                cls="col-xs-6",  # Constrains the fieldset to 8/12 width
+                Button("Save", type="submit"),
             ),
-            cls="container",
         )
     ),
 )
 
-db = database("routers.db")
-routers = db.create(Router, pk="index")
+
+def configured(router_keys):
+    return Div(
+        H2("Configured Routers"),
+        Ul(
+            *[Li(A(f"Router {k}", href=f"/router_view/{k}")) for k in router_keys],
+        ),
+    )
 
 
 @app.get("/router_form")
 def router_form_view():
-    return router_form
+    r_keys = [k.index for k in routers()]
+    return Div(
+        Div(
+            A("Home", href="/"),
+            router_form,
+            configured(r_keys),
+            cls="col-xs-6",
+        ),
+        cls="container",
+    )
 
 
 @app.get("/router_view/{index}")
@@ -137,4 +153,4 @@ def save_router(router: Router):
     return RedirectResponse(url=f"/router_view/{router.index}", status_code=303)
 
 
-serve()
+serve(port=8000)
