@@ -1,3 +1,4 @@
+import re
 from netmiko import ConnectHandler
 from NMtcpdump import getMacs, c1Ping, tap0
 
@@ -56,16 +57,15 @@ def findR5():
         
         debug = conn.send_command("show cdp neighbors detail")
         conn.disconnect()
-        devices = debug.split("\n")
-        for i in range(0, len(devices)):
-            if "R5" in devices[i]:
-                return devices[i+2].strip().split(" ")[2]
+        ip_raw = re.search(r"IPv6 address: [\w\d:]+", debug)
+        ip = ip_raw.group(0).split(" ")[2]
+        return ip
 
     except Exception as e:
         print("unable to find ip for R5")
         print(e)
 
-def connR5(ip):
+def R5_dhcp_server(ip):
     try:
         R5 = {
             'device_type': 'cisco_ios',
@@ -74,11 +74,34 @@ def connR5(ip):
             'password': 'cade1999',
             'secret': 'cade1999',
         }
+        macs = list(getMacs(c1Ping, tap0))
         conn = ConnectHandler(**R5)
         conn.enable()
-        debug = conn.send_command("show ipv6 int brief")
-        print(debug)
+        conn.send_config_set([
+            "int f0/0",
+            "ip address 10.0.0.5 255.255.255.0",
+            "no shutdown",
+        ])
+        conn.send_config_set([
+            # config R2 with it's mac
+            'ip dhcp pool R2-F0/0',
+            'host 10.0.0.2 255.255.255.0',
+            f'hardware-address {macs[0]}',
+            # config R3 with it's mac
+            'ip dhcp pool R3-F0/0',
+            'host 10.0.0.3 255.255.255.0',
+            f'hardware-address {macs[1]}',
+            # dynamic config for R4
+            'ip dhcp pool R4-F0/0',
+            'network 10.0.0.0 255.255.255.0',
+            'ip dhcp excluded-address 10.0.0.2 10.0.0.4',
+        ])
+
+        dhcp_bindings = conn.send_command("show ip dhcp binding")
         conn.disconnect()
+        ips = re.findall(r"10.\d+.\d+.\d+", dhcp_bindings)
+        return ips
+
     except Exception as e:
         print(f"unable to connect to and configure R5 @ {ip}")
         print(e)
