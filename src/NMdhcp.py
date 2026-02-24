@@ -100,6 +100,7 @@ def R5_dhcp_server(ip):
         dhcp_bindings = conn.send_command("show ip dhcp binding")
         conn.disconnect()
         ips = re.findall(r"10.\d+.\d+.\d+", dhcp_bindings)
+        print(f"IPs from R5 DHCP bindings {ips}")
         return ips
 
     except Exception as e:
