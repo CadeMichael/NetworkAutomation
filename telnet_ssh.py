@@ -3,8 +3,6 @@ import threading
 
 from netmiko import ConnectHandler
 
-threads = []
-
 router = {
     "device_type": "cisco_ios_telnet",
     "host": "localhost",
@@ -15,6 +13,9 @@ router = {
 }
 
 def config(router, data, r):
+    """
+    modify router with data from toml and send config
+    """
     router["port"] = data[r]["port"]
     print(router)
     ssh_commands = [
@@ -33,15 +34,17 @@ def config(router, data, r):
         f"ip address {data[r]["ip"]} {data[r]["mask"]}",
         "no shutdown",
     ]
-    conn = ConnectHandler(**router)
-    conn.enable()
-    conn.send_config_set(ssh_commands)
-    conn.set_base_prompt()
-    conn.send_config_set(ip_commands)
-    conn.disconnect()
+    with ConnectHandler(**router) as conn:
+        conn.enable()
+        conn.send_config_set(ssh_commands)
+        conn.set_base_prompt()
+        conn.send_config_set(ip_commands)
+        conn.disconnect()
 
 with open("ssh_conf.toml", "rb") as f:
     data = tomllib.load(f)
+
+    threads = []
 
     for r in data.keys():
         t = threading.Thread(target=config, args=(router.copy(),data,r))
