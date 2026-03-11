@@ -1,0 +1,50 @@
+routerConf:
+- hostname: R1
+  interfaces:
+  - id: 0/0
+    ip: 198.51.100.3
+    subnet: 198.51.100.0
+    type: FastEthernet
+  - id: 1/0
+    ip: 198.51.101.3
+    subnet: 198.51.101.0
+    type: FastEthernet
+  - id: 1/1
+    ip: 198.51.102.3
+    subnet: 198.51.102.0
+    type: FastEthernet
+  loopID: '1'
+  loopIP: 10.0.0.1
+  ospf: 'Yes'
+  ospfArea: '0'
+  ospfID: '1'
+- hostname: R2
+  interfaces:
+  - id: 0/0
+    ip: 198.51.100.4
+    subnet: 198.51.100.0
+    type: FastEthernet
+  - id: 1/0
+    ip: 198.51.101.4
+    subnet: 198.51.101.0
+    type: FastEthernet
+  loopID: '1'
+  loopIP: 20.0.0.1
+  ospf: 'Yes'
+  ospfArea: '0'
+  ospfID: '2'
+- hostname: R3
+  interfaces:
+  - id: 0/0
+    ip: 198.51.100.5
+    subnet: 198.51.100.0
+    type: FastEthernet
+  - id: 1/0
+    ip: 198.51.102.5
+    subnet: 198.51.102.0
+    type: FastEthernet
+  loopID: '1'
+  loopIP: 30.0.0.1
+  ospf: 'Yes'
+  ospfArea: '0'
+  ospfID: '3'

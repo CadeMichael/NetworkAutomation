@@ -1,0 +1,4 @@
+- name: generate all router configs
+  hosts: localhost
+  roles:
+    - router

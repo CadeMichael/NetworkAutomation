@@ -1,0 +1,5 @@
+- name: generate router config
+  template:
+    src: routers.j2
+    dest: "{{ playbook_dir }}/{{ item.hostname }}.conf"
+  with_items: "{{ routerConf }}"
