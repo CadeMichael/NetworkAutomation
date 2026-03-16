@@ -1,3 +1,4 @@
+import argparse
 import tomllib
 import threading
 
@@ -24,7 +25,7 @@ def config(router, data, r):
         "crypto key generate rsa modulus 2048",
         "ip ssh version 2",
         "enable secret cade1999",
-        "username admin password cade1999",
+        f"username {data[r]["user"]} password {data[r]["pass"]}",
         "line vty 0 4",
         "transport input ssh",
         "login local",
@@ -41,15 +42,27 @@ def config(router, data, r):
         conn.send_config_set(ip_commands)
         conn.disconnect()
 
-with open("ssh_conf.toml", "rb") as f:
-    data = tomllib.load(f)
 
-    threads = []
+def main(file):
+    with open(file, "rb") as f:
+        data = tomllib.load(f)
 
-    for r in data.keys():
-        t = threading.Thread(target=config, args=(router.copy(),data,r))
-        t.start()
-        threads.append(t)
+        threads = []
 
-    for t in threads:
-        t.join()
+        for r in data.keys():
+            t = threading.Thread(target=config, args=(router.copy(),data,r))
+            t.start()
+            threads.append(t)
+
+        for t in threads:
+            t.join()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog="ssh telnet config",
+        description="setup ssh on routers defined in a toml file",
+    )
+    parser.add_argument("-f", "--file", type=str, help="toml config file")
+    args = parser.parse_args()
+    file = args.file
+    main(file)
