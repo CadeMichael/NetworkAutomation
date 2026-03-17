@@ -24,7 +24,7 @@ def config(router, data, r):
         "ip domain-name LAB.LOCAL",
         "crypto key generate rsa modulus 2048",
         "ip ssh version 2",
-        "enable secret cade1999",
+        "enable secret lab123",
         f"username {data[r]["user"]} password {data[r]["pass"]}",
         "line vty 0 4",
         "transport input ssh",
@@ -35,11 +35,18 @@ def config(router, data, r):
         f"ip address {data[r]["ip"]} {data[r]["mask"]}",
         "no shutdown",
     ]
+    netconf_commands = [
+        "netconf ssh acl 1",
+        "netconf lock-time 60",
+        "netconf max-sessions 5",
+        "netconf max-message 37283",
+    ]
     with ConnectHandler(**router) as conn:
         conn.enable()
         conn.send_config_set(ssh_commands)
         conn.set_base_prompt()
         conn.send_config_set(ip_commands)
+        conn.send_config_set(netconf_commands, read_timeout=30)
         conn.disconnect()
 
 
