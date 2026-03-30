@@ -1,0 +1,33 @@
+// using uv as it makes things so much easier and it is what I use for all
+// python development
+pipeline {
+  agent any
+  stages {
+    stage("Python Dependencies") {
+      steps {
+        sh "uv sync"
+        sh "uv pip show ncclient || uv pip install ncclient"
+        sh "uv pip show pandas || uv pip install pandas"
+        sh "uv pip show ipaddress || uv pip install ipaddress"
+        sh "uv pip show netaddr || uv pip install netaddr"
+        sh "uv pip show prettytable || uv pip install prettytable"
+        sh "uv pip show pylint || uv pip install pylint"
+      }
+    }
+    stage("Python Code Quality") {
+      steps {
+        sh "uv run pylint netman_conf_obj2.py --fail-under=5.0"
+      }
+    }
+    stage("Python Code Execution") {
+      steps {
+        sh "uv run netman_conf_obj2.py"
+      }
+    }
+    stage("Python Unit Tests") {
+      steps {
+        sh "uv run test_net.py -v" // -v for more verbose output
+      }
+    }
+  }
+}

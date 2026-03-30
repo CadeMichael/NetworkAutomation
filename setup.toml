@@ -1,0 +1,39 @@
+[R1]
+int = "fa0/0"
+port = 5000
+ip = "198.51.100.11"
+mask = "255.255.255.0"
+user = "lab"
+pass = "lab123"
+
+[R2]
+int = "fa0/0"
+port = 5001
+ip = "198.51.100.12"
+mask = "255.255.255.0"
+user = "lab"
+pass = "lab123"
+
+[R3]
+int = "fa0/0"
+port = 5002
+ip = "198.51.100.13"
+mask = "255.255.255.0"
+user = "lab"
+pass = "lab123"
+
+[R4]
+int = "fa0/0"
+port = 5003
+ip = "198.51.100.14"
+mask = "255.255.255.0"
+user = "lab"
+pass = "lab123"
+
+[R5]
+int = "fa0/0"
+port = 5004
+ip = "198.51.100.15"
+mask = "255.255.255.0"
+user = "lab"
+pass = "lab123"
